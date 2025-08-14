@@ -1,7 +1,8 @@
+import 'package:delivery_app/common/service/auth_api.dart';
 import 'package:flutter/material.dart';
 
 
-class DefaultLayout extends StatelessWidget {
+class DefaultLayout extends StatefulWidget {
   final Widget child;
   final Color? backgroundColor;
   final String? title;
@@ -12,29 +13,41 @@ class DefaultLayout extends StatelessWidget {
     super.key,required this.child,
     this.backgroundColor,
     this.title,
-    this.bottomNavigationBar
+    this.bottomNavigationBar,
   });
 
+  @override
+  State<DefaultLayout> createState() => _DefaultLayoutState();
+}
 
+class _DefaultLayoutState extends State<DefaultLayout> {
+  final AuthService auth = AuthService();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    auth.refreshToken();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: renderAppBar(),
-      backgroundColor: backgroundColor ?? Colors.white,
-      body: child,
-      bottomNavigationBar: bottomNavigationBar,
+      backgroundColor: widget.backgroundColor ?? Colors.white,
+      body: widget.child,
+      bottomNavigationBar: widget.bottomNavigationBar,
     );
   }
 
   AppBar? renderAppBar(){
-    if(title==null){
+    if(widget.title==null){
       return null;
     }else{
       return AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          title!,
+          widget.title!,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500

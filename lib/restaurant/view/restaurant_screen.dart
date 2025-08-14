@@ -1,3 +1,4 @@
+import 'package:delivery_app/common/service/auth_api.dart';
 import 'package:delivery_app/restaurant/components/restaurant_card.dart';
 import 'package:flutter/material.dart';
 
@@ -7,20 +8,41 @@ class RestaurantScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AuthService auth = AuthService();
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: RestaurantCard(
-        image: Image.asset(
-          'asset/img/food/ddeok_bok_gi.jpg',
-          fit: BoxFit.cover,
-        ),
-        name: '불타는 떡볶이',
-        tags: ['떡볶이','치즈','매운맛'],
-        ratingCount: 100,
-        deliveryFee: 2000,
-        deliveryTime: 15,
-        rating: 4.52,
-      ),
+      child: FutureBuilder<List>(
+        future: auth.paginateRestaurant(),
+        builder: (context, AsyncSnapshot<List> snapshot){
+
+          if(!snapshot.hasData){
+            return Center(child: CircularProgressIndicator());
+          }
+          return ListView.separated(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (_, index){
+              final item = snapshot.data![index];
+
+              return RestaurantCard(
+                image: Image.network(
+                  'https://gitea.yumkar.online/${item['thumbUrl']}',
+                  fit: BoxFit.cover,
+                ),
+                name: item['name'],
+                tags: List<String>.from(item['tags']),
+                ratingsCount: item['ratingsCount'],
+                deliveryFee: item['deliveryFee'],
+                deliveryTime: item['deliveryTime'],
+                ratings: item['ratings'],
+              );
+            },
+            separatorBuilder: (_, index){
+              return SizedBox(height: 16,);
+            },
+          );
+        },
+      )
     );
   }
 }

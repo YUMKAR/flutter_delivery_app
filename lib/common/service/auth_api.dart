@@ -5,6 +5,9 @@ import 'package:http/http.dart' as http;
 class AuthService{
   final String _baseUrl = 'https://gitea.yumkar.online';
 
+  final ACCESSTOKEN_KEY = 'access-token';
+  final REFRESHTOKEN_KEY = 'refresh-token';
+
   Future<void> saveAccessToken(String access) async{
     final pref = await SharedPreferences.getInstance();
     await pref.setString('access-token', access);
@@ -87,4 +90,30 @@ class AuthService{
       return false;
     }
   }
+
+  Future<List> paginateRestaurant() async{
+    final url = Uri.parse('$_baseUrl/restaurant');
+    final accessToken = await getToken('access');
+
+    try{
+      final response = await http.get(
+          url,
+          headers: {
+            'Content-Type' : 'application/json',
+            'Authorization' : 'Bearer $accessToken'
+          }
+      );
+
+      if(response.statusCode == 200){
+        final data = jsonDecode(response.body);
+        return data['data'];
+      }else{
+        return [response.statusCode];
+      }
+    }catch(e){
+      'error : $e';
+      return [e];
+    }
+  }
+
 }
